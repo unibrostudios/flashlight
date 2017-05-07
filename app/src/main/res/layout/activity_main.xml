@@ -6,21 +6,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.unibro.flashlight.MainActivity"
-    android:gravity="center"
-    android:background="@drawable/back2"
+    android:gravity="center_horizontal|center_vertical"
+
+    android:background="@drawable/background"
 
     >
 
 
     <ImageButton
         android:id="@+id/imagebtn"
-        android:layout_width="500px"
-        android:layout_height="175px"
+        android:layout_width="600px"
+        android:layout_height="600px"
         android:background="@drawable/off"
-        android:layout_marginEnd="35dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginBottom="169dp" />
+
+
+
+        />
 
 
 </RelativeLayout>

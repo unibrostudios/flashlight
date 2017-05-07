@@ -75,9 +75,9 @@ public class MainActivity extends AppCompatActivity {
         Boolean isFlashAvailable = getApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
         if (!isFlashAvailable) {
             AlertDialog alert = new AlertDialog.Builder(MainActivity.this).create();
-            alert.setTitle(getString(R.string.app_name));
-            alert.setMessage("Deneme");
-            alert.setButton(DialogInterface.BUTTON_POSITIVE, "Açıldı", new DialogInterface.OnClickListener() {
+            alert.setTitle("Warning!");
+            alert.setMessage("Flash is Not Available");
+            alert.setButton(DialogInterface.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     finish();
                 }
