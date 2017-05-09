@@ -18,39 +18,24 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
+import java.lang.reflect.Field;
 import java.security.Policy;
 
 public class MainActivity extends AppCompatActivity {
     TextView tv;
     ImageButton im;
-
-    /**
-     * Object for camera service
-     */
+    private boolean flashAcik=false;
+    private boolean flashVarmı;
+    private Camera camera2;
+    Parameters params;
     private CameraManager objCameraManager;
-    /**
-     * id of current camera
-     */
     private String mCameraId;
-    /**
-     * imageview in design which controls the flash light
-     */
     private ImageView ivOnOFF;
-    /**
-     * Object of medial player to play sound while flash on/off
-     */
     private MediaPlayer objMediaPlayer;
-    /**
-     * for getting torch mode
-     */
-    private Boolean isTorchOn;
-
-
-
-
-
+    private Boolean isTorchOn=false;
 
 
 
@@ -65,63 +50,110 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
+        setContentView(R.layout.activity_main);
         im=(ImageButton) findViewById(R.id.imagebtn);
 
+      if (Build.VERSION.SDK_INT >22)
+      {
+          isTorchOn = false;
 
-        isTorchOn = false;
+          Boolean isFlashAvailable = getApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
+          if (!isFlashAvailable) {
+              AlertDialog alert2 = new AlertDialog.Builder(MainActivity.this).create();
+              alert2.setTitle("Warning!");
+              alert2.setMessage("Flash is Not Available");
+              alert2.setButton(DialogInterface.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
+                  public void onClick(DialogInterface dialog, int which) {
+                      finish();
+                  }
+              });
+              alert2.show();
+              return;
+          }
 
-        Boolean isFlashAvailable = getApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
-        if (!isFlashAvailable) {
-            AlertDialog alert = new AlertDialog.Builder(MainActivity.this).create();
-            alert.setTitle("Warning!");
-            alert.setMessage("Flash is Not Available");
-            alert.setButton(DialogInterface.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    finish();
-                }
-            });
-            alert.show();
-            return;
+
+          objCameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+          try {
+              mCameraId = objCameraManager.getCameraIdList()[0];
+          } catch (Exception e) {
+              e.printStackTrace();
+          }
+
+          im.setOnClickListener(new View.OnClickListener() {
+              @Override
+              public void onClick(View v) {
+                  try {
+                      if (isTorchOn) {
+                          im.setBackgroundResource(R.drawable.off);
+                          turnOffLight();
+                          isTorchOn = false;
+                      } else {
+                          im.setBackgroundResource(R.drawable.on);
+                          turnOnLight();
+                          isTorchOn = true;
+                      }
+                  } catch (Exception e) {
+                      e.printStackTrace();
+                  }
+              }
+          });
+
+      }
+      else {
+          //isTorchOn = false;
+
+          Boolean isFlashAvailable = getApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
+          if (!isFlashAvailable) {
+              AlertDialog alert2 = new AlertDialog.Builder(MainActivity.this).create();
+              alert2.setTitle("Warning!");
+              alert2.setMessage("Flash is Not Available");
+              alert2.setButton(DialogInterface.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
+                  public void onClick(DialogInterface dialog, int which) {
+                      finish();
+                  }
+              });
+              alert2.show();
+              return;
+          }
+
+            cameraAc();
+
+          im.setOnClickListener(new View.OnClickListener() {
+              @Override
+              public void onClick(View v) {
+                  try {
+                      if (isTorchOn) { // Flash Acik true dönücek. Eğer Flash Açıksa Kapatıcak
+                          im.setBackgroundResource(R.drawable.off);
+                          turnOffLight();
+                      } else {
+                          // Açık değilse button'a basınca açıcak
+                          im.setBackgroundResource(R.drawable.on);
+                          turnOnLight();
+                      }
+
+                  } catch (Exception e) {
+                      e.printStackTrace();
+                  }
+              }
+          });
         }
-
-
-        objCameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
-        try {
-            mCameraId = objCameraManager.getCameraIdList()[0];
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        im.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    if (isTorchOn) {
-                        im.setBackgroundResource(R.drawable.off);
-                        turnOffLight();
-                        isTorchOn = false;
-                    } else {
-                        im.setBackgroundResource(R.drawable.on);
-                        turnOnLight();
-                        isTorchOn = true;
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-
-
     }
     public void turnOnLight() {
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (Build.VERSION.SDK_INT > 22) {
                 objCameraManager.setTorchMode(mCameraId, true);
 
             }
+            else
+            {
+                params = camera2.getParameters();
+                params.setFlashMode(Parameters.FLASH_MODE_TORCH);
+                camera2.setParameters(params);
+                camera2.startPreview();
+                isTorchOn = true;
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -132,11 +164,18 @@ public class MainActivity extends AppCompatActivity {
      */
     public void turnOffLight() {
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (Build.VERSION.SDK_INT > 22) {
                 objCameraManager.setTorchMode(mCameraId, false);
 
-               // ivOnOFF.setImageResource(R.drawable.off);
             }
+            else{
+                params = camera2.getParameters();
+                params.setFlashMode(Parameters.FLASH_MODE_OFF);
+                camera2.setParameters(params);
+                camera2.stopPreview();
+                isTorchOn = false;
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -162,6 +201,17 @@ public class MainActivity extends AppCompatActivity {
             turnOnLight();
         }
     }
+
+    private void cameraAc() {
+        if (camera2 == null) {
+
+            camera2 = Camera.open();
+            params = camera2.getParameters();
+
+        }
+    }
+
+
 
 
 
