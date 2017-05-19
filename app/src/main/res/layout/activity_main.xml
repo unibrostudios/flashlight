@@ -7,21 +7,55 @@
     android:layout_height="match_parent"
     tools:context="com.unibro.flashlight.MainActivity"
     android:gravity="center_horizontal|center_vertical"
-
+    android:configChanges="orientation"
+    android:screenOrientation="portrait"
     android:background="@drawable/backop"
 
     >
 
 
+
     <ImageButton
         android:id="@+id/imagebtn"
-        android:layout_width="600px"
-        android:layout_height="600px"
+        android:layout_width="450px"
+        android:layout_height="450px"
         android:background="@drawable/off"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        />
 
 
+    <TextView
+        android:id="@+id/tv1"
+        android:layout_width="200dp"
+        android:layout_height="90px"
+        android:text="Strobe Effect"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_below="@+id/imagebtn"
+        android:layout_marginTop="50px"
+        android:textAlignment="center"
+        android:textSize="20dp"
+        android:textStyle="bold"
 
         />
+
+    <SeekBar
+        android:id="@+id/seekBar1"
+
+        android:progressDrawable="@drawable/custom_seekbar"
+        android:layout_width="650px"
+        android:layout_height="80px"
+        android:layout_below="@+id/tv1"
+        android:layout_centerHorizontal="true"
+        android:layout_weight="1"
+        android:focusable="false"
+        android:max="10"
+        android:progress="0"
+        android:thumb="@drawable/thumb"
+        android:indeterminate="false"
+        />
+
 
 
 </RelativeLayout>
